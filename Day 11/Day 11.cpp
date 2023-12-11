@@ -6,51 +6,45 @@
 int main() {
 	std::fstream file("input.txt");
 	std::string s;
-
-	// Part 1 variables
-	std::vector<std::string> space_unexpanded;
-	std::vector<std::pair<int, int>> galaxies;
-
-	// Part 2 variables
-	std::vector<std::string> older_space;
+	
+	std::vector<std::string> space;
 	std::vector<int> row_breaks;
 	std::vector<int> col_breaks;
-	std::vector<std::pair<int, int>> older_galaxies;
 
+	// Part 1 variable
+	std::vector<std::pair<int, int>> galaxies;
+
+	// Part 2 variable
+	std::vector<std::pair<int, int>> older_galaxies;
+	
 	while (std::getline(file, s)) {
 		if (s.find('#') == -1) {
-			space_unexpanded.push_back(s);
-			row_breaks.push_back(older_space.size());
+			row_breaks.push_back(space.size());
 		}
-		space_unexpanded.push_back(s);
-		older_space.push_back(s);
+		space.push_back(s);
 	}
 
-	std::vector<std::string> space(space_unexpanded.size());
 
-	for (int i = 0; i < space_unexpanded[0].size(); i++) {
-		bool willAdd = true;
-		for (int j = 0; j < space_unexpanded.size(); j++) {
-			space[j].push_back(space_unexpanded[j][i]);
-			if (space_unexpanded[j][i] == '#') willAdd = false;
+	for (int i = 0; i < space[0].size(); i++) {
+		bool _break = true;
+		for (int j = 0; j < space.size(); j++) {
+			if (space[j][i] == '#') {
+				_break = false;
+				break;
+			}
 		}
-		if (willAdd) for (int j = 0; j < space.size(); j++) space[j].push_back('.');
-		if (willAdd) col_breaks.push_back(i);
+		if (_break) col_breaks.push_back(i);
 	}
 
-	for (int i = 0, row = 0, col = 0; i < space.size(); i++) { // Getting the galaxies in Part 1
+	for (int i = 0, row = 0, col = 0; i < space.size(); i++) { // Getting the galaxies
+		if (row_breaks[row] == i) row++;
 		for (int j = 0; j < space[0].size(); j++) {
 			if (col_breaks[col] == j) col++;
-			if (space[i][j] == '#') galaxies.push_back({i, j});
-		}
-	}
-
-	for (int i = 0, row = 0, col = 0; i < older_space.size(); i++) { // Getting the galaxies in Part 2
-		if (row_breaks[row] == i) row++;
-		for (int j = 0; j < older_space[0].size(); j++) {
-			if (col_breaks[col] == j) col++;
-			if (older_space[i][j] == '#') older_galaxies.push_back({i+(row*999'999), j+(col*999'999)});
-			// The numbers get multiplied by 999 999 because the expanded line already takes up one extra space
+			if (space[i][j] == '#') {
+				galaxies.push_back({i+row, j+col}); // Part 1
+				older_galaxies.push_back({i+(row*999'999), j+(col*999'999)}); // Part 2
+				// The numbers get multiplied by 999 999 because the expanded line already takes up one extra space
+			}
 		}
 		col = 0;
 	}
